@@ -1,0 +1,95 @@
+name: disaster-response-management
+version: 1.0.0
+description: >
+  A multi-city disaster response environment where an RL agent
+  must dispatch rescue teams to minimize casualties across
+  cascading disasters including fire, flood, earthquake,
+  tsunami, lightning, epidemic and compound events.
+
+author: your-name
+tags:
+  - disaster-management
+  - multi-agent
+  - resource-allocation
+  - real-world
+  - openenv
+
+observation_space:
+  type: Box
+  shape: [85]
+  dtype: float32
+  description: >
+    Per city (8 cities x 10 features): severity, disaster_type,
+    compound_flag, infrastructure_dmg, power_out, evacuation_status,
+    disease_risk, team_fatigue, population_density, elevation.
+    Global (5): teams_available, supply_level, time_of_day,
+    step_fraction, weather_state.
+
+action_space:
+  type: Discrete
+  n: 18
+  description: >
+    0=hold, 1-8=dispatch team to city N,
+    9-16=evacuate city N, 17=rest teams
+
+reward:
+  description: >
+    +reward for people saved (scaled by population density).
+    -penalty for severity growth (scaled by population).
+    -penalty for each cascade event triggered.
+    -penalty for power outages and supply shortage.
+    +bonus at episode end for low severity, infrastructure,
+    disease risk, and supply level.
+  range: [-inf, +inf]
+  shaped: true
+
+tasks:
+  - id: task_1_contain
+    name: Contain Single Disaster
+    difficulty: easy
+    description: >
+      Keep average severity below 0.5 for 72 steps
+      starting with only fire disasters.
+    success_threshold: 0.6
+
+  - id: task_2_prevent_cascade
+    name: Prevent Cascade Events
+    difficulty: medium
+    description: >
+      Complete episode with fewer than 10 cascade events
+      triggered across all cities.
+    success_threshold: 0.7
+
+  - id: task_3_mass_casualty
+    name: Mass Casualty Minimization
+    difficulty: hard
+    description: >
+      Minimize total casualties while managing compound
+      disasters, epidemic outbreak, and power grid failures
+      simultaneously across all 8 cities.
+    success_threshold: 0.8
+
+episode:
+  max_steps: 72
+  description: Each step represents 1 simulated hour (72hr = 3 days)
+
+cities:
+  - Chennai
+  - Mumbai
+  - Delhi
+  - Bengaluru
+  - Mysuru
+  - Hyderabad
+  - Kochi
+  - Coorg
+
+disasters:
+  - none
+  - fire
+  - flood
+  - earthquake
+  - lightning
+  - tsunami
+  - compound
+  - epidemic
+  - aftershock
